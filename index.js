@@ -1,43 +1,43 @@
-var http = require('http');
+const http = require('http');
 
-var handler = require('./src/handler');
-var fs = require('fs');
-var Url = require('url');
-var handlers = {};
-var def = '/';
-var method = 'POST';
-var default_port = 80;
-var requests = {};
+const handler = require('./src/handler');
+const fs = require('fs');
+const Url = require('url');
+const handlers = {};
+const def = '/';
+let method = 'POST';
+const default_port = 80;
+const requests = {};
 
-var log = (message) => {
+const log = (message) => {
 
   if(!message) return;
 
   if (typeof message == 'object')
-    console.log('[hook-server] ' + JSON.parse(message));
+    console.log(`[hook-server] ${JSON.parse(message)}`);
   else if(typeof message == 'string')
-    console.log('[hook-server] ' + message);
+    console.log(`[hook-server] ${message}`);
   else
     console.log('[hook-server] Error');
-}
+};
 
-var isEmptyObject = (obj) => !Object.keys(obj).length;
+const isEmptyObject = (obj) => !Object.keys(obj).length;
 
-var HookServer = ( () => {
-  var same;
+const HookServer = ( () => {
+  let same;
 
-  var _objectToQuerystring = (obj) => {
-    return Object.keys(obj).reduce(function (str, key, i) {
-      var delimiter, val;
+  const _objectToQuerystring = (obj) => {
+    return Object.keys(obj).reduce((str, key, i) => {
+      let delimiter, val;
       delimiter = (i === 0) ? '?' : '&';
       key = encodeURIComponent(key);
       val = encodeURIComponent(obj[key]);
       return [str, delimiter, key, '=', val].join('');
     }, '');
-  }
+  };
 
-  var _capture = (req) => {
-    var message;
+  const _capture = (req) => {
+    let message;
 
     if (typeof req.rawBody == 'object') {
       message = req.rawBody;
@@ -52,35 +52,34 @@ var HookServer = ( () => {
     if(same.interceptor)
       same.interceptor(same.parser
         ? (isEmptyObject(message) ? message : req.rawBody)
-        : req.rawBody
-      );
-  }
+        : req.rawBody);
+  };
 
-  var _toHandler = (url, method, call) => {
-    log('service.' + url);
+  const _toHandler = (url, method, call) => {
+    log(`service.${url}`);
 
-    var cap = (req, res) => {
+    const cap = (req, res) => {
       _capture(req);
       call(req, res);
       res.end();
-    }
+    };
 
     handlers[method + url] = handler.create(cap);
     handlers[method + url].method = method;
-  }
+  };
 
-  var _missing = (req) => {
-    var url = Url.parse(req.url, true);
-    return handler.create(function(req, res) {
+  const _missing = (req) => {
+    let url = Url.parse(req.url, true);
+    return handler.create((req, res) => {
       res.writeHead(404, {'Content-Type': 'text/plain'});
-      res.write('404 not found to' + url.pathname);
+      res.write(`404 not found to${url.pathname}`);
       res.end();
     });
-  }
+  };
 
-  var _setRoute = (req) => {
+  const _setRoute = (req) => {
     url = Url.parse(req.url, true);
-    var handler = handlers[req.method + url.pathname];
+    let handler = handlers[req.method + url.pathname];
 
     if (!handler)
       handler = _missing(req)
@@ -88,17 +87,17 @@ var HookServer = ( () => {
         handler = _missing(req)
 
     return handler;
-  }
+  };
 
-  var _generateRequest = (lnk) => {
+  const _generateRequest = (lnk) => {
     return post = (data) => {
 
       //var post_data = _objectToQuerystring(data);
       data = data ? data : {};
 
-      var url = Url.parse(lnk);
+      const url = Url.parse(lnk);
       console.log(url);
-      var options = {
+      const options = {
         host: url.hostname,
           path: url.pathname,
           port: url.port,
@@ -109,14 +108,14 @@ var HookServer = ( () => {
           }
       };
 
-      var req = http.request(options, function (res) {
-          var responseString = "";
+      const req = http.request(options, res => {
+          let responseString = "";
 
-          res.on("data", function (data) {
+          res.on("data", data => {
               responseString += data;
           });
 
-          res.on("end", function () {
+          res.on("end", () => {
               // responseString
               console.log('end trigger sending');
           });
@@ -125,7 +124,7 @@ var HookServer = ( () => {
       req.write(JSON.stringify(data));
       req.end();
     }
-  }
+  };
 
   class HookServer {
 
@@ -159,19 +158,19 @@ var HookServer = ( () => {
     start(port, callback) {
       this.port = port ? port : default_port;
 
-      this.filter(this.__route ? this.__route : def, function(req, res){
+      this.filter(this.__route ? this.__route : def, (req, res) => {
         log("Request received on api")
       });
 
-      var server = http.createServer(function (req, res) {
-        var handler = _setRoute(req);
+      const server = http.createServer((req, res) => {
+        const handler = _setRoute(req);
         handler.process(req, res);
       });
 
-      server.listen(this.port, function(err){
+      server.listen(this.port, err => {
         if(err) throw new TypeError(err.message);
 
-        console.log("[hook-server] is started on " + port);
+        console.log(`[hook-server] is started on ${port}`);
         callback()
       });
     }
@@ -183,14 +182,14 @@ var HookServer = ( () => {
 
       try {
         if (same.trigger[name]) {
-          log(name + " trigger already exists");
+          log(`${name} trigger already exists`);
         } else {
           same.trigger[name] = url;
           requests[name] = _generateRequest(url);
-          log("trigger." + name);
+          log(`trigger.${name}`);
         }
       } catch (e) {
-        log("error on create trigger: " + e.message);
+        log(`error on create trigger: ${e.message}`);
       }
       return this;
     }
@@ -214,20 +213,20 @@ var HookServer = ( () => {
 
       try {
         if (same.receiver[action]) {
-          log(action + " already exists");
+          log(`${action} already exists`);
         } else {
           same.receiver[action] = call;
-          log("name." + action);
+          log(`name.${action}`);
         }
       } catch (e) {
-        log("error on add action: " + e.message);
+        log(`error on add action: ${e.message}`);
       }
 
       return this;
     }
   }
 
-  var hook = new HookServer();
+  const hook = new HookServer();
 
   return hook;
 })();

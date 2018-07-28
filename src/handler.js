@@ -2,27 +2,27 @@ exports.create = (fn) => {
   return new HookHandler(fn);
 }
 
-var getQueryParams = (req) => {
-  let q = req.url.split('?'), result={};
+const getQueryParams = (req) => {
+  const q = req.url.split('?'), result={};
   if(q.length>=2){
-    q[1].split('&').forEach( (item) => {
+    q[1].split('&').forEach((item) => {
       try {
-        result[item.split('=')[0]]=item.split('=')[1];
+        result[item.split('=')[0]] = item.split('=')[1];
       } catch (e) {
-        result[item.split('=')[0]]='';
+        result[item.split('=')[0]] = '';
       }
     })
   }
   return result;
-}
+};
 
-var getObjFromUri = (uri) => {
-  var uri = decodeURI(uri);
-  var chunks = uri.split('&');
-  var params = Object();
+const getObjFromUri = (data) => {
+  const uri = decodeURI(data);
+  const chunks = uri.split('&');
+  const params = Object();
 
-  for (var i=0; i < chunks.length ; i++) {
-    var chunk = chunks[i].split('=');
+  for (let i=0; i < chunks.length ; i++) {
+    const chunk = chunks[i].split('=');
     if(chunk[0].search("\\[\\]") !== -1) {
       if( typeof params[chunk[0]] === 'undefined' ) {
         params[chunk[0]] = [chunk[1]];
@@ -35,11 +35,11 @@ var getObjFromUri = (uri) => {
   }
 
   return params;
-}
+};
 
-HookHandler = function (emt) {
+HookHandler = function(emt) {
   this.process = (req, res) => {
-    var body = '';
+    let body = '';
 
     req.query = getQueryParams(req);
 
