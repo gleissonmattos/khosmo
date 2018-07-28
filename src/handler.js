@@ -52,6 +52,8 @@ HookHandler = function (emt) {
       } catch (err) {
         req.rawBody = body;
         req.body = getObjFromUri(body);
+
+        req.end();
       }
       emt.apply(this, [req, res]);
     });

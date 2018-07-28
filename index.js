@@ -2,11 +2,12 @@ var http = require('http');
 
 var handler = require('./src/handler');
 var fs = require('fs');
-var parser = require('url');
+var Url = require('url');
 var handlers = {};
 var def = '/';
 var method = 'POST';
 var default_port = 80;
+var requests = {};
 
 var log = (message) => {
 
@@ -25,6 +26,16 @@ var isEmptyObject = (obj) => !Object.keys(obj).length;
 var HookServer = ( () => {
   var same;
 
+  var _objectToQuerystring = (obj) => {
+    return Object.keys(obj).reduce(function (str, key, i) {
+      var delimiter, val;
+      delimiter = (i === 0) ? '?' : '&';
+      key = encodeURIComponent(key);
+      val = encodeURIComponent(obj[key]);
+      return [str, delimiter, key, '=', val].join('');
+    }, '');
+  }
+
   var _capture = (req) => {
     var message;
 
@@ -35,7 +46,7 @@ var HookServer = ( () => {
     }
 
     try {
-      same.obj[message[same.action]](message);
+      same.receiver[message[same.action]](message);
     } catch(e) { /**/ }
 
     if(same.interceptor)
@@ -47,12 +58,19 @@ var HookServer = ( () => {
 
   var _toHandler = (url, method, call) => {
     log('service.' + url);
-    handlers[method + url] = handler.create(call);
+
+    var cap = (req, res) => {
+      _capture(req);
+      call(req, res);
+      res.end();
+    }
+
+    handlers[method + url] = handler.create(cap);
     handlers[method + url].method = method;
   }
 
   var _missing = (req) => {
-    var url = parser.parse(req.url, true);
+    var url = Url.parse(req.url, true);
     return handler.create(function(req, res) {
       res.writeHead(404, {'Content-Type': 'text/plain'});
       res.write('404 not found to' + url.pathname);
@@ -61,7 +79,7 @@ var HookServer = ( () => {
   }
 
   var _setRoute = (req) => {
-    url = parser.parse(req.url, true);
+    url = Url.parse(req.url, true);
     var handler = handlers[req.method + url.pathname];
 
     if (!handler)
@@ -72,10 +90,48 @@ var HookServer = ( () => {
     return handler;
   }
 
+  var _generateRequest = (lnk) => {
+    return post = (data) => {
+
+      //var post_data = _objectToQuerystring(data);
+      data = data ? data : {};
+
+      var url = Url.parse(lnk);
+      console.log(url);
+      var options = {
+        host: url.hostname,
+          path: url.pathname,
+          port: url.port,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer token"
+          }
+      };
+
+      var req = http.request(options, function (res) {
+          var responseString = "";
+
+          res.on("data", function (data) {
+              responseString += data;
+          });
+
+          res.on("end", function () {
+              // responseString
+              console.log('end trigger sending');
+          });
+      });
+
+      req.write(JSON.stringify(data));
+      req.end();
+    }
+  }
+
   class HookServer {
 
     constructor(opts) {
-      this.obj = {};
+      this.receiver = {};
+      this.trigger = {};
       this.interceptor;
       this.action;
 
@@ -104,8 +160,7 @@ var HookServer = ( () => {
       this.port = port ? port : default_port;
 
       this.filter(this.__route ? this.__route : def, function(req, res){
-        _capture(req);
-        res.end();
+        log("Request received on api")
       });
 
       var server = http.createServer(function (req, res) {
@@ -121,6 +176,31 @@ var HookServer = ( () => {
       });
     }
 
+    create(name, url) {
+      if (typeof name !== 'string') throw new TypeError('trigger name not is string')
+      if (typeof url !== 'string') throw new TypeError('url not is string')
+      //if (typeof call !== 'function') throw new TypeError('callback not is one function')
+
+      try {
+        if (same.trigger[name]) {
+          log(name + " trigger already exists");
+        } else {
+          same.trigger[name] = url;
+          requests[name] = _generateRequest(url);
+          log("trigger." + name);
+        }
+      } catch (e) {
+        log("error on create trigger: " + e.message);
+      }
+      return this;
+    }
+
+    send(name, data) {
+      if (typeof name !== 'string') throw new TypeError('url not is string')
+      //if (typeof data !== 'object') throw new TypeError('callback not is one function')
+      requests[name](data);
+    }
+
     all(call) {
       if (typeof call !== 'function') throw new TypeError('callback not is one function')
       this.interceptor = call;
@@ -133,14 +213,14 @@ var HookServer = ( () => {
       if (typeof call !== 'function') throw new TypeError('callback not is one function')
 
       try {
-        if (same.obj[action]) {
+        if (same.receiver[action]) {
           log(action + " already exists");
         } else {
-          same.obj[action] = call;
+          same.receiver[action] = call;
           log("name." + action);
         }
       } catch (e) {
-        log("error on add action" + e.message);
+        log("error on add action: " + e.message);
       }
 
       return this;
