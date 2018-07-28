@@ -219,13 +219,36 @@ const HookServer = ( () => {
           log(`${action} already exists`);
         } else {
           same.receiver[action] = call;
-          log(`name.${action}`);
+          log(`name.${action}`); ee
         }
       } catch (e) {
         log(`error on add action: ${e.message}`);
       }
 
       return this;
+    }
+
+    observe(dir, callback, opt) {
+      if (typeof dir !== 'string') throw new TypeError('directory is required')
+      if (typeof callback !== 'function') throw new TypeError('callback not is one function')
+
+      opt = opt ? opt : {};
+
+      fs.watch(dir, function (event, filename) {
+          if (filename) {
+            if(opt.get_data) {
+              fs.readFile(filename, function(err, data) {
+                if(err) return;
+
+                callback(filename, event, data.toString());
+              });
+            } else {
+              callback(filename, event);
+            }
+          } else {
+              console.log('filename not provided');
+          }
+      });
     }
   }
 
