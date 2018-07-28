@@ -1,12 +1,33 @@
 {
   "name": "hook-server",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.4.3",
+  "description": "Webhook api completa com servidor receptor integrado, gatilho para notificações e observador do sistema de arquivos",
   "main": "index.js",
+  "readmeFilename" : "README.md",
+  "keywords" : [
+    "hook",
+    "webhook",
+    "hook-server",
+    "web-hook",
+    "server",
+    "hook-api",
+    "hook-system"
+  ],
+  "tags" : [
+    "hook",
+    "webhook",
+    "hook-api"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Gleisson Ricardo",
-  "license": "ISC",
+  "author": {
+    "name" : "Gleisson Ricardo",
+    "email" : "contato.mattos@outlook.com"
+  },
+  "license": "MIT",
+  "engine" : {
+    "node" : ">=8.9.0"
+  },
   "dependencies": {}
 }
