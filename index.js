@@ -9,7 +9,7 @@ let method = {
   POST : 'POST',
   GET : 'GET',
   UPDATE : 'UPDATE',
-  DELETE : 'DELETE';
+  DELETE : 'DELETE'
 };
 const default_port = 80;
 const requests = {};
@@ -95,10 +95,11 @@ const HookServer = ( () => {
   };
 
   const _generateRequest = (lnk) => {
-    return post = (data) => {
+    return post = (data, headers) => {
 
       //var post_data = _objectToQuerystring(data);
       data = data ? data : {};
+      headers = headers ? headers : { "Content-Type": "application/json" }
 
       const url = Url.parse(lnk);
 
@@ -107,11 +108,8 @@ const HookServer = ( () => {
           path: url.pathname,
           port: url.port,
           method: method.POST,
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer token",
-          }
-      };
+          headers: headers
+      }
 
       const req = http.request(options, res => {
           let responseString = "";
@@ -190,7 +188,7 @@ const HookServer = ( () => {
           log(`${name} trigger already exists`);
         } else {
           same.trigger[name] = url;
-          requests[name] = _generateRequest(url, opt.token);
+          requests[name] = _generateRequest(url);
           log(`trigger.${name}`);
         }
       } catch (e) {
@@ -199,10 +197,10 @@ const HookServer = ( () => {
       return this;
     }
 
-    send(name, data) {
+    send(name, data, headers) {
       if (typeof name !== 'string') throw new TypeError('url not is string')
       //if (typeof data !== 'object') throw new TypeError('callback not is one function')
-      requests[name](data);
+      requests[name](data, headers);
     }
 
     all(call) {
