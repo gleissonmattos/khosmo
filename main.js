@@ -56,7 +56,7 @@ const HookServer = ( () => {
 
     if(same.interceptor)
       same.interceptor(same.parser
-        ? (isEmptyObject(message) ? message : req.rawBody)
+        ? (isEmptyObject(message) ? req.rawBody : message)
         : req.rawBody);
   };
 
@@ -138,7 +138,7 @@ const HookServer = ( () => {
       same = this;
     }
 
-    filter(url, call) {
+    route(url, call) {
       _toHandler(url, call);
     }
 
@@ -159,7 +159,7 @@ const HookServer = ( () => {
     start(port, callback) {
       this.port = port ? port : default_port;
 
-      this.filter(this.__route ? this.__route : def, (req, res) => {
+      this.route(this.__route ? this.__route : def, (req, res) => {
         log("Request received on api")
       });
 
@@ -208,7 +208,7 @@ const HookServer = ( () => {
       return this;
     }
 
-    on(action, call) {
+    filter(action, call) {
       if (typeof action !== 'string') throw new TypeError('action is required')
       if (typeof call !== 'function') throw new TypeError('callback not is one function')
 
