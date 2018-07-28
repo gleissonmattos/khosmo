@@ -96,7 +96,7 @@ const HookServer = ( () => {
       data = data ? data : {};
 
       const url = Url.parse(lnk);
-      console.log(url);
+
       const options = {
         host: url.hostname,
           path: url.pathname,
@@ -104,7 +104,7 @@ const HookServer = ( () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer token"
+            "Authorization": "Bearer token",
           }
       };
 
