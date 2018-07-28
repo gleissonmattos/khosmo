@@ -5,7 +5,12 @@ const fs = require('fs');
 const Url = require('url');
 const handlers = {};
 const def = '/';
-let method = 'POST';
+let method = {
+  POST : 'POST',
+  GET : 'GET',
+  UPDATE : 'UPDATE',
+  DELETE : 'DELETE';
+};
 const default_port = 80;
 const requests = {};
 
@@ -65,7 +70,7 @@ const HookServer = ( () => {
     };
 
     handlers[method + url] = handler.create(cap);
-    handlers[method + url].method = method;
+    handlers[method + url].method = method.POST;
   };
 
   const _missing = (req) => {
@@ -101,7 +106,7 @@ const HookServer = ( () => {
         host: url.hostname,
           path: url.pathname,
           port: url.port,
-          method: "POST",
+          method: method.POST,
           headers: {
             "Content-Type": "application/json",
             "Authorization": "Bearer token",
@@ -185,7 +190,7 @@ const HookServer = ( () => {
           log(`${name} trigger already exists`);
         } else {
           same.trigger[name] = url;
-          requests[name] = _generateRequest(url);
+          requests[name] = _generateRequest(url, opt.token);
           log(`trigger.${name}`);
         }
       } catch (e) {
