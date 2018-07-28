@@ -60,7 +60,7 @@ const HookServer = ( () => {
         : req.rawBody);
   };
 
-  const _toHandler = (url, method, call) => {
+  const _toHandler = (url, call) => {
     log(`service.${url}`);
 
     const cap = (req, res) => {
@@ -69,8 +69,8 @@ const HookServer = ( () => {
       res.end();
     };
 
-    handlers[method + url] = handler.create(cap);
-    handlers[method + url].method = method.POST;
+    handlers[method.POST + url] = handler.create(cap);
+    handlers[method.POST + url].method = call;
   };
 
   const _missing = (req) => {
@@ -88,8 +88,6 @@ const HookServer = ( () => {
 
     if (!handler)
       handler = _missing(req)
-      else if(handler.method != req.method)
-        handler = _missing(req)
 
     return handler;
   };
@@ -141,7 +139,7 @@ const HookServer = ( () => {
     }
 
     filter(url, call) {
-      _toHandler(url, method, call);
+      _toHandler(url, call);
     }
 
     option(opt) {
@@ -219,7 +217,7 @@ const HookServer = ( () => {
           log(`${action} already exists`);
         } else {
           same.receiver[action] = call;
-          log(`name.${action}`); ee
+          log(`name.${action}`);
         }
       } catch (e) {
         log(`error on add action: ${e.message}`);
