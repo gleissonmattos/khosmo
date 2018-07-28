@@ -2,7 +2,7 @@
   "name": "hook-server",
   "version": "0.4.3",
   "description": "Webhook api completa com servidor receptor integrado, gatilho para notificações e observador do sistema de arquivos",
-  "main": "index.js",
+  "main": "main.js",
   "readmeFilename" : "README.md",
   "keywords" : [
     "hook",
