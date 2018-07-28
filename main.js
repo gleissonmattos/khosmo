@@ -142,7 +142,7 @@ const HookServer = ( () => {
       _toHandler(url, call);
     }
 
-    option(opt) {
+    config(opt) {
       if (typeof opt !== 'object') throw new TypeError('Option expected an Object')
 
       if (opt.parser) {
