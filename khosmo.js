@@ -156,7 +156,7 @@ const Khosmo = ( () => {
       this.__route = opt.route;
     }
 
-    start(port, callback) {
+    listen(port, callback) {
       this.port = port ? port : default_port;
 
       this.route(this.__route ? this.__route : def, (req, res) => {
