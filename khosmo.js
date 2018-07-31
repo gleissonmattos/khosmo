@@ -19,16 +19,16 @@ const log = (message) => {
   if(!message) return;
 
   if (typeof message == 'object')
-    console.log(`[hook-server] ${JSON.parse(message)}`);
+    console.log(`[khosmo] ${JSON.parse(message)}`);
   else if(typeof message == 'string')
-    console.log(`[hook-server] ${message}`);
+    console.log(`[khosmo] ${message}`);
   else
-    console.log('[hook-server] Error');
+    console.log('[khosmo] Error');
 };
 
 const isEmptyObject = (obj) => !Object.keys(obj).length;
 
-const HookServer = ( () => {
+const Khosmo = ( () => {
   let same;
 
   const _objectToQuerystring = (obj) => {
@@ -118,7 +118,7 @@ const HookServer = ( () => {
 
           res.on("end", () => {
               // responseString
-              console.log('end trigger sending');
+              log('Send finish');
           });
       });
 
@@ -127,7 +127,7 @@ const HookServer = ( () => {
     }
   };
 
-  class HookServer {
+  class Khosmo {
 
     constructor(opts) {
       this.receiver = {};
@@ -171,7 +171,7 @@ const HookServer = ( () => {
       server.listen(this.port, err => {
         if(err) throw new TypeError(err.message);
 
-        console.log(`[hook-server] is started on ${port}`);
+        console.log(`[khosmo] is started on ${port}`);
         callback()
       });
     }
@@ -249,10 +249,7 @@ const HookServer = ( () => {
       });
     }
   }
-
-  const hook = new HookServer();
-
-  return hook;
+  return new Khosmo();
 })();
 
-module.exports = HookServer;
+module.exports = Khosmo;

@@ -1,76 +1,76 @@
-hook-server
+Khosmo
 ===========================
 
-This module allows you to easily implement a webhook service. They rely on the pre-configuration of triggers that when triggered send notifications and share data in real time. This module also has a built-in server for implementing a webhook receiving API.
+This module allows you to easily implement a webhook service to monitor changes of state. They rely on the pre-configuration of triggers that when triggered send notifications and share data in real time. This module also has a built-in server for implementing a webhook receiving API.
 
 ## Get started
 
 Install module in your project
 
 ```sh
-npm install --save hook-server
+npm install --save khosmo
 ```
 
 ## Basic usage
 Start module:
 ```js
-var hook = require('hook-server');
+const khosmo = require('khosmo');
 ```
-Create web hook triggers to one http data receptor:
+Create webhook events pointing to one http data receptor:
 ```js
 // hook one
-hook.create("hook_post",
+khosmo.create("hook_post",
   "http://localhost:8000/hook_posts"
 );
 // hook two
-hook.create("error",
+khosmo.create("error",
   "http://localhost:8000/error/log"
 );
 ```
 
 To trigger a hook call it by passing the data you want to send:
 ```js
-hook.send("hook_post", {name : 'Pedro José', msg : 'Hello hook'});
+khosmo.send("hook_post", {name : 'Pedro José', msg : 'Hello hook'});
 ```
 You can also notify with a simple text, exemplo:
 ```js
-hook.send("hook_post", "This is one message");
+khosmo.send("hook_post", "This is one message");
 ```
 
 Send notification with custom headers using JSON object:
 
-> ```hook.send( [hook_name], [data], [headers])```
+> ```khosmo.send( [webhook_name], [data], [headers])```
 
 ```js
-hook.send("hook_post", "This is message data", {
+khosmo.send("hook_post", "This is message data", {
   "Content-Type": "application/json",
   "Authorization": "Bearer token_here",
 });
 ```
 ## Server api
-hook-server has an integrated server that can serve as a webhook. This way you can create services to receive data sent from any webhook sender.
+Khosmo has an integrated server that can serve as a webhook. This way you can create services to receive data sent from any webhook sender.
 
-Build one basic hook-server receiver:
+Build one basic Khosmo receiver:
 ```js
-var hook = require('./main.js');
+const khosmo = require('khosmo');
 // Configure
-hook.config({
+khosmo.config({
   parser : true,
   route : '/'
 });
 // Defines a global service for receiving messages
-hook.all(function(message){
+khosmo.all(function(message){
   console.log("Message captured: " + JSON.stringify(message));
 })
 ```
 Start the server with:
 ```js
-hook.start(8000, function(){ /* started success */ });
+khosmo.start(8000, function(){ /* started success */ });
 ```
 
-The webhook receiver is started and all messages sent to ```http: // localhost:8000``` will be captured in ```hook.all()```.
+The webhook receiver is started and all messages sent to ```http: // localhost:8000``` will be captured in ```khosmo.all()```.
 
->The default service settings are set to: ```hook.config()```. Check all the settings in the options session
+>The default service settings are set to: ```khosmo.config()```. Check all the settings in the options session
 
 #### Filter JSON data
 
@@ -79,13 +79,13 @@ Set data filters for the message receiver. All data sent in JSON will be filtere
 ```js
 //  Configure the JSON key to perform the action filter
 // 'action_type' is filter custom key
-hook.config({
+khosmo.config({
   action : 'action_type',
   parser : true,
   route : '/'
 });
 // Create one filter to action
-hook.filter("payment_finish", function(message){
+khosmo.filter("payment_finish", function(message){
   console.log("Payment made by: " + message.user_name);
 });
 ```
@@ -103,14 +103,14 @@ hook.filter("payment_finish", function(message){
 
 
 #### Server router
-You can create a customized http api through the system of routes integrated in the hook-server, example:
+You can create a customized http api through the system of routes integrated in the Khosmo, example:
 
 ```js
-hook.router("/receiver/posts", function(message){
+khosmo.router("/receiver/posts", function(message){
   console.log("Message received: " + message);
 });
 //-
-hook.router("/receiver/report", function(message){
+khosmo.router("/receiver/report", function(message){
   console.log("Report notification: " + message);
 });
 ```
@@ -118,24 +118,24 @@ hook.router("/receiver/report", function(message){
 ## File observer
 Define a file monitor to identify and intercept actions that occur in a particular directory, for example:
 ```js
-hook.observe('./my_files', (fileName, action) => {
-  console.log(action + ": " + name);
+khosmo.observe('./my_files', (fileName, action) => {
+  console.log(action + ": " + name); // > change : file.yml
 }, { get_data : false } );
 ```
 
 > Check params: ```observe( [path], [callback], [options] )```
 
-Now run a hook trigger and notify a service whenever there are changes to any file.
+Now run a hook trigger and notify a service whenever there are changes in states to any file.
 
 ```js
 // create one hook trigger
-hook.create("file_changed",
+khosmo.create("file_changed",
   "http://localhost:8000/monitoring/files"
 );
 // create one file observer definindo ./my_files como diretório de monitoramento
-hook.observe('./my_files', (fileName, action, data) => {
+khosmo.observe('./my_files', (fileName, action, data) => {
   // triggering notification via webhook
-  hook.send("file_changed", {
+  khosmo.send("file_changed", {
     action : action,
     fileName : fileName,
     fileData : data
@@ -145,7 +145,7 @@ hook.observe('./my_files', (fileName, action, data) => {
 });
 ```
 ## Options
-All options configure hook.
+All options configure of Khosmo.
 ```JSON
 {
   "action" : "action_check_key",
@@ -165,3 +165,8 @@ All options configure hook.
 2. Webhook receptor service filter
 3. Api http service
 4. File observer
+
+License
+=======
+
+The MIT License ([MIT](LICENSE))
