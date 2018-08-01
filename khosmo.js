@@ -152,7 +152,7 @@ const Khosmo = ( () => {
       if (typeof opt !== 'object') throw new TypeError('Option expected an Object')
 
       try {
-        this.parser = typeof opt.parser !== 'boolean' ? false : opt.parse;
+        this.parser = typeof opt.parser !== 'boolean' ? true : opt.parse;
         this.debug = typeof opt.debug !== 'boolean' ? false : opt.debug;
       } catch(err){
         throw new TypeError(err.message);
