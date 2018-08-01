@@ -8,7 +8,7 @@ This module allows you to easily implement a webhook service to monitor changes 
 Install module in your project
 
 ```sh
-npm install --save khosmo
+npm i --save khosmo
 ```
 
 ## Basic usage
