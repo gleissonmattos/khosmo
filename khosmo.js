@@ -14,22 +14,24 @@ let method = {
 const default_port = 80;
 const requests = {};
 
-const log = (message) => {
-
-  if(!message) return;
-
-  if (typeof message == 'object')
-    console.log(`[khosmo] ${JSON.parse(message)}`);
-  else if(typeof message == 'string')
-    console.log(`[khosmo] ${message}`);
-  else
-    console.log('[khosmo] Error');
-};
-
-const isEmptyObject = (obj) => !Object.keys(obj).length;
-
 const Khosmo = ( () => {
+
   let same;
+  let _id = 'khosmo';
+
+  const _isEmptyObject = (obj) => !Object.keys(obj).length;
+
+  const log = (message) => {
+
+    if(!message || !same.debug) return;
+
+    if (typeof message == 'object')
+      console.log(`[${_id}] ${JSON.parse(message)}`);
+    else if(typeof message == 'string')
+      console.log(`[${_id}] ${message}`);
+    else
+      console.log(`[${_id}] Error`);
+  };
 
   const _objectToQuerystring = (obj) => {
     return Object.keys(obj).reduce((str, key, i) => {
@@ -56,7 +58,7 @@ const Khosmo = ( () => {
 
     if(same.interceptor)
       same.interceptor(same.parser
-        ? (isEmptyObject(message) ? req.rawBody : message)
+        ? (_isEmptyObject(message) ? req.rawBody : message)
         : req.rawBody);
   };
 
@@ -145,11 +147,11 @@ const Khosmo = ( () => {
     config(opt) {
       if (typeof opt !== 'object') throw new TypeError('Option expected an Object')
 
-      if (opt.parser) {
-        if (typeof opt.parser !== 'boolean') throw new TypeError('Option parser expected an boolean')
-        this.parser = opt.parser;
-      } else {
-        this.parser = false;
+      try {
+        this.parser = typeof opt.parser !== 'boolean' ? false : opt.parse;
+        this.debug = typeof opt.debug !== 'boolean' ? false : opt.debug;
+      } catch(err){
+        throw new TypeError(err.message);
       }
 
       this.action = opt.action;

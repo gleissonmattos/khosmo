@@ -150,15 +150,18 @@ All options configure of Khosmo.
 {
   "action" : "action_check_key",
   "parser" : true,
-  "route" : "/"
+  "route" : "/",
+  "debug" : false
 }
 ```
 
 | key    | Specifications                                            |
 |--------|-----------------------------------------------------------|
-| action | String with action key to filter on receiver                  |
+| action | String with action key to filter on receiver              |
 | parser | Boolean to convert body request to json (true is default) |
 | route  | Default route the receiver api                            |
+| debug  | Boolean define if debug mod is active                     |
+
 ## Current features
 
 1. Notifications trigger
