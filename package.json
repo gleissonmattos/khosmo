@@ -12,12 +12,10 @@
     "web-hook",
     "server",
     "hook-api",
-    "hook-system",
-    "venera"
+    "hook-system"
   ],
   "tags": [
     "khosmo",
-    "venera",
     "hook",
     "webhook",
     "hook-api"
@@ -28,6 +26,10 @@
   "author": {
     "name": "Gleisson Ricardo",
     "email": "contato.mattos@outlook.com"
+  },
+  "repository" :{
+    "type" : "git",
+    "url" : "https://github.com/gleissonmattos/khosmo.git"
   },
   "license": "MIT",
   "engine": {
