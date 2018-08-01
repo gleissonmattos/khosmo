@@ -13,7 +13,7 @@ let method = {
 };
 const default_port = 80;
 const requests = {};
-
+const default_headers = { "Content-Type": "application/json" }
 const Khosmo = ( () => {
 
   let same;
@@ -99,7 +99,11 @@ const Khosmo = ( () => {
 
       //var post_data = _objectToQuerystring(data);
       data = data ? data : {};
-      headers = headers ? headers : { "Content-Type": "application/json" }
+
+      if(headers) {
+        if (typeof headers !== 'object') throw new TypeError('Option expected an Object')
+        headers = Object.assign({}, default_headers, headers)
+      } else headers = default_headers
 
       const url = Url.parse(lnk);
 
