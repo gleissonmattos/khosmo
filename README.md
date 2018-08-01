@@ -65,7 +65,10 @@ khosmo.all(function(message){
 ```
 Start the server with:
 ```js
-khosmo.listen(8000, function(){ /* started success */ });
+khosmo.listen(8000, function(err){
+  if(err) console.log(err.message)
+  // Server started
+});
 ```
 
 The webhook receiver is started and all messages sent to ```http: // localhost:8000``` will be captured in ```khosmo.all()```.

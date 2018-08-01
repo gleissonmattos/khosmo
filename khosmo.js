@@ -171,10 +171,7 @@ const Khosmo = ( () => {
       });
 
       server.listen(this.port, err => {
-        if(err) throw new TypeError(err.message);
-
-        console.log(`[khosmo] is started on ${port}`);
-        callback()
+        callback(err)
       });
     }
 
