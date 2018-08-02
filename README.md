@@ -109,11 +109,11 @@ khosmo.filter("payment_finish", function(message){
 You can create a customized http api through the system of routes integrated in the Khosmo, example:
 
 ```js
-khosmo.router("/receiver/posts", function(message){
+khosmo.route("/receiver/posts", function(message){
   console.log("Message received: " + message);
 });
 //-
-khosmo.router("/receiver/report", function(message){
+khosmo.route("/receiver/report", function(message){
   console.log("Report notification: " + message);
 });
 ```
