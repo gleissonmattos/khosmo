@@ -37,8 +37,13 @@ const getObjFromUri = (data) => {
   return params;
 };
 
-HookHandler = function(emt) {
-  this.process = (req, res) => {
+class HookHandler {
+
+  constructor(emt) {
+    this.emt = emt;
+  }
+
+  process(req, res) {
     let body = '';
 
     req.query = getQueryParams(req);
@@ -53,7 +58,7 @@ HookHandler = function(emt) {
         req.rawBody = body;
         req.body = getObjFromUri(body);
       }
-      emt.apply(this, [req, res]);
+      this.emt.apply(this, [req, res]);
     });
   }
 }
