@@ -82,6 +82,7 @@ class HookHandler {
   * @param {Khosmo} instance - Khosmo instance class
   * @param {Object} req - request object from server
   * @param {Object} res - response object from server
+  * @public
   */
   process(instance, req, res) {
     let body = '';

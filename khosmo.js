@@ -406,7 +406,8 @@ const Khosmo = ( () => {
     *     });
     *
     *
-    * @param {Function} call - callback to receiver all data messages
+    * @param {String} action
+    * @param {Function} call - callback
     * @return {Instance} chaining
     * @public
     */
@@ -442,8 +443,10 @@ const Khosmo = ( () => {
     *     }, { get_data: true});
     *
     *
-    * @param {Function} call - callback to receiver all data messages
-    * @return {Instance} chaining
+    * @param {String} dir - file(s) directory
+    * @param {Function} callback
+    * @param {Object} opt - options
+    * @return {Instance}
     * @public
     */
     observe(dir, callback, opt) {
