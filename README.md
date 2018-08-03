@@ -32,7 +32,7 @@ To trigger a hook call it by passing the data you want to send:
 ```js
 khosmo.send("hook_post", {name : 'Pedro José', msg : 'Hello hook'});
 ```
-You can also notify with a simple text, exemplo:
+You can also notify with a simple text, example:
 ```js
 khosmo.send("hook_post", "This is one message");
 ```

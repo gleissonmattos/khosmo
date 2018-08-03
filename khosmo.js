@@ -1,3 +1,12 @@
+/*!
+ * khosmo
+ * Copyright(c) 2018 Gleisson Mattos
+ * http://github.com/gleissonmattos
+ *
+ * Licensed under the MIT license.
+ * http://www.opensource.org/licenses/mit-license.php
+ */
+
 const http = require('http');
 
 const handler = require('./src/handler');
@@ -19,10 +28,25 @@ const Khosmo = ( () => {
   let same;
   let _id = 'khosmo';
 
+
+  /**
+  * Check if object `obj` not contains keys.
+  *
+  * @param {Object} obj
+  * @return {boolean}
+  * @private
+  */
   const _isEmptyObject = (obj) => !Object.keys(obj).length;
 
-  const log = (message) => {
 
+  /**
+  * Basic debug log system.
+  *
+  * @param {String|Object} message
+  * @private
+  */
+  const log = (message) => {
+    // Prevent and check debug mode
     if(!message || !same.debug) return;
 
     if (typeof message == 'object')
@@ -33,6 +57,14 @@ const Khosmo = ( () => {
       console.log(`[${_id}] Error`);
   };
 
+
+  /**
+  * Convert JSON Object to query string
+  *
+  * @param {Object} obj
+  * @return {String}
+  * @private
+  */
   const _objectToQuerystring = (obj) => {
     return Object.keys(obj).reduce((str, key, i) => {
       let delimiter, val;
@@ -43,6 +75,14 @@ const Khosmo = ( () => {
     }, '');
   };
 
+
+  /**
+  * Capture message request and directs
+  * to registered data receivers
+  *
+  * @param {Object} req - request object server
+  * @private
+  */
   const _capture = (req) => {
     let message;
 
@@ -62,6 +102,12 @@ const Khosmo = ( () => {
         : req.rawBody);
   };
 
+  /**
+  * Register router service and url handler paths
+  *
+  * @param {Object} req - request object server
+  * @private
+  */
   const _toHandler = (url, call) => {
     log(`service.${url}`);
     const cap = (instance, req, res) => {
@@ -83,11 +129,17 @@ const Khosmo = ( () => {
 
       res.end();
     };
-
     handlers[method.POST + url] = handler.create(cap);
     handlers[method.POST + url].method = call;
   };
 
+  /**
+  * Directs the request when there is no
+  * adequate response
+  *
+  * @param {Object} req - request object server
+  * @private
+  */
   const _missing = (req) => {
     let url = Url.parse(req.url, true);
     return handler.create((instance, req, res) => {
@@ -97,7 +149,14 @@ const Khosmo = ( () => {
     });
   };
 
-  const _setRoute = (req) => {
+  /**
+  * Check requests and directs
+  *
+  * @param {Object} req - request object server
+  * @return {Object} - handler object
+  * @private
+  */
+  const _checkRequest = (req) => {
     url = Url.parse(req.url, true);
     let handler = handlers[req.method + url.pathname];
 
@@ -107,6 +166,13 @@ const Khosmo = ( () => {
     return handler;
   };
 
+  /**
+  * Generate post request sender
+  *
+  * @param {String} lnk - url to post request
+  * @return {Function} - event
+  * @private
+  */
   const _generateRequest = (lnk) => {
     return post = (data, headers) => {
 
@@ -136,7 +202,6 @@ const Khosmo = ( () => {
           });
 
           res.on("end", () => {
-              // responseString
               log('Send finish');
           });
       });
@@ -146,9 +211,14 @@ const Khosmo = ( () => {
     }
   };
 
+
+  /**
+  * Khosmo class
+  * @constructor
+  */
   class Khosmo {
 
-    constructor(opts) {
+    constructor() {
       this.receiver = {};
       this.trigger = {};
       this.interceptor;
@@ -157,10 +227,45 @@ const Khosmo = ( () => {
       same = this;
     }
 
+    /**
+    * Create HTTP route handler
+    *
+    * Register url route and event callback request receiver.
+    * Todas as rotas atualmente serão mapeadas para receber
+    * apenas solicitações de métodos post
+    *
+    * Examples:
+    *
+    *     khosmo.route('/receiver/posts', (message, req, res) => {
+    *       // Callback here. `message` is captured body request
+    *     });
+    *
+    * @param {String} url - route path
+    * @param {Function} call - route request callback
+    * @public
+    */
     route(url, call) {
       _toHandler(url, call);
     }
 
+
+    /**
+    * Khosmo configurator
+    *
+    * All options são
+    *
+    * Examples:
+    *
+    *     khosmo.config({
+    *       action : "action_check_key",
+    *       parser : true,
+    *       route : "/",
+    *       debug : false
+    *     })
+    *
+    * @param {object} opt - JSON Object with options
+    * @public
+    */
     config(opt) {
       if (typeof opt !== 'object') throw new TypeError('Option expected an Object')
 
@@ -175,8 +280,18 @@ const Khosmo = ( () => {
       this.__route = opt.route;
     }
 
-    listen(port, callback) {
-      const safe = this;
+
+    /**
+    * Server start listener
+    *
+    * Started the HTTP server with specifications
+    *
+    * @param {Number} port - port the service
+    * @param {Function} call - callback
+    * @public
+    */
+    listen(port, call) {
+      const instance = this;
       this.port = port ? port : default_port;
 
       this.route(this.__route ? this.__route : def, (req, res) => {
@@ -184,19 +299,35 @@ const Khosmo = ( () => {
       });
 
       const server = http.createServer((req, res) => {
-        const handler = _setRoute(req);
-        handler.process(safe, req, res);
+        const handler = _checkRequest(req);
+        handler.process(instance, req, res);
       });
 
       server.listen(this.port, err => {
-        callback(err)
+        call(err)
       });
     }
 
+
+    /**
+    * Register one webhook trigger emitter
+    *
+    * These emitters can be triggered using
+    * the send method `khosmo.send()`.
+    *
+    * Examples:
+    *
+    *     khosmo.create('payment_finish', 'http://localhost:8000/report');
+    *     khosmo.create('user_registered', 'http://localhost:8000/users');
+    *
+    * @param {String} name - webhook name
+    * @param {String} url - HTTP url to receiver get_data
+    * @return {Instance} chaining
+    * @public
+    */
     create(name, url) {
       if (typeof name !== 'string') throw new TypeError('trigger name not is string')
       if (typeof url !== 'string') throw new TypeError('url not is string')
-      //if (typeof call !== 'function') throw new TypeError('callback not is one function')
 
       try {
         if (same.trigger[name]) {
@@ -212,12 +343,47 @@ const Khosmo = ( () => {
       return this;
     }
 
+
+    /**
+    * Fires the webhook configured in `khosmo.create()`
+    *
+    * Examples:
+    *
+    *     khosmo.send('payment_finish', 'One payment has acconpliceded');
+    *     khosmo.send('user_registered', { id: 5641, name : 'Pedro'});
+    *
+    *     // using headers
+    *     khosmo.send('user_registered', 'This data here',{
+    *       "Content-Type": "application/json",
+    *       "Authorization": "Bearer ASDflkaskldjfljlewrqwasf",
+    *     })
+    *
+    * @param {String} name - webhook name
+    * @param {Object|String} data - data to send
+    * @param {Object} headers - object with headers values
+    * @public
+    */
     send(name, data, headers) {
       if (typeof name !== 'string') throw new TypeError('url not is string')
-      //if (typeof data !== 'object') throw new TypeError('callback not is one function')
       requests[name](data, headers);
     }
 
+
+    /**
+    * Configure method to receiver all
+    * data messages request
+    *
+    * Examples:
+    *
+    *     khosmo.all('payment_finish', (message) => {
+    *       // messages receiveds. `message` is captured message
+    *     });
+    *
+    *
+    * @param {Function} call - callback to receiver all data messages
+    * @return {Instance} chaining
+    * @public
+    */
     all(call) {
       if (typeof call !== 'function') throw new TypeError('callback not is one function')
       this.interceptor = call;
@@ -225,6 +391,25 @@ const Khosmo = ( () => {
       return this;
     }
 
+
+    /**
+    * Filters messages data
+    *
+    * The filter is made through keys contained in json
+    * objects received in the body of the request. This JSON key
+    * is configured in `khosmo.config()` using the `action` option
+    *
+    * Examples:
+    *
+    *     khosmo.filter('action_name', (message) => {
+    *       // messages receiveds. `message` is captured message
+    *     });
+    *
+    *
+    * @param {Function} call - callback to receiver all data messages
+    * @return {Instance} chaining
+    * @public
+    */
     filter(action, call) {
       if (typeof action !== 'string') throw new TypeError('action is required')
       if (typeof call !== 'function') throw new TypeError('callback not is one function')
@@ -243,6 +428,24 @@ const Khosmo = ( () => {
       return this;
     }
 
+
+    /**
+    * File monitor
+    *
+    * Identify changed status in files into in path or one
+    * specific file
+    *
+    * Examples:
+    *
+    *     khosmo.observe('./my_files/example.yml', (filename, action, data) => {
+    *       // your code here
+    *     }, { get_data: true});
+    *
+    *
+    * @param {Function} call - callback to receiver all data messages
+    * @return {Instance} chaining
+    * @public
+    */
     observe(dir, callback, opt) {
       if (typeof dir !== 'string') throw new TypeError('directory is required')
       if (typeof callback !== 'function') throw new TypeError('callback not is one function')

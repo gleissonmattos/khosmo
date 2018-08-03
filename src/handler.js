@@ -1,7 +1,27 @@
+/*!
+ * khosmo
+ * Copyright(c) 2018 Gleisson Mattos
+ * http://github.com/gleissonmattos
+ *
+ * Licensed under the MIT license.
+ * http://www.opensource.org/licenses/mit-license.php
+ */
+
+/**
+* Module exports
+*/
 exports.create = (fn) => {
   return new HookHandler(fn);
 }
 
+
+/**
+* Get query request params
+*
+* @param {Object} req - server request
+* @return {Object} JSON object with querys parameters
+* @private
+*/
 const getQueryParams = (req) => {
   const q = req.url.split('?'), result={};
   if(q.length>=2){
@@ -16,6 +36,14 @@ const getQueryParams = (req) => {
   return result;
 };
 
+
+/**
+* Get JSON from from URI param
+*
+* @param {String} data
+* @return {Object} JSON object parameter
+* @private
+*/
 const getObjFromUri = (data) => {
   const uri = decodeURI(data);
   const chunks = uri.split('&');
@@ -37,12 +65,24 @@ const getObjFromUri = (data) => {
   return params;
 };
 
+/**
+* HookHandler class
+* @constructor
+* @param emt - handler emitter
+*/
 class HookHandler {
 
   constructor(emt) {
     this.emt = emt;
   }
 
+  /**
+  * Process request data
+  *
+  * @param {Khosmo} instance - Khosmo instance class
+  * @param {Object} req - request object from server
+  * @param {Object} res - response object from server
+  */
   process(instance, req, res) {
     let body = '';
 
