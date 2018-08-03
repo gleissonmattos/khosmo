@@ -43,7 +43,7 @@ class HookHandler {
     this.emt = emt;
   }
 
-  process(req, res) {
+  process(instance, req, res) {
     let body = '';
 
     req.query = getQueryParams(req);
@@ -58,7 +58,7 @@ class HookHandler {
         req.rawBody = body;
         req.body = getObjFromUri(body);
       }
-      this.emt.apply(this, [req, res]);
+      this.emt.apply(this, [instance, req, res]);
     });
   }
 }

@@ -64,10 +64,23 @@ const Khosmo = ( () => {
 
   const _toHandler = (url, call) => {
     log(`service.${url}`);
-
-    const cap = (req, res) => {
+    const cap = (instance, req, res) => {
+      let message;
       _capture(req);
-      call(req, res);
+
+      if (typeof req.rawBody == 'object') {
+        message = req.rawBody;
+      } else if(typeof req.body == 'object') {
+        message = req.body;
+      }
+
+      call(
+        instance.parser
+          ? (_isEmptyObject(message) ? req.rawBody : message)
+          : req.rawBody,
+        req, res
+      );
+
       res.end();
     };
 
@@ -77,7 +90,7 @@ const Khosmo = ( () => {
 
   const _missing = (req) => {
     let url = Url.parse(req.url, true);
-    return handler.create((req, res) => {
+    return handler.create((instance, req, res) => {
       res.writeHead(404, {'Content-Type': 'text/plain'});
       res.write(`404 not found to${url.pathname}`);
       res.end();
@@ -108,7 +121,7 @@ const Khosmo = ( () => {
       const url = Url.parse(lnk);
 
       const options = {
-        host: url.hostname,
+          host: url.hostname,
           path: url.pathname,
           port: url.port,
           method: method.POST,
@@ -152,7 +165,7 @@ const Khosmo = ( () => {
       if (typeof opt !== 'object') throw new TypeError('Option expected an Object')
 
       try {
-        this.parser = typeof opt.parser !== 'boolean' ? true : opt.parse;
+        this.parser = typeof opt.parser !== 'boolean' ? true : opt.parser;
         this.debug = typeof opt.debug !== 'boolean' ? false : opt.debug;
       } catch(err){
         throw new TypeError(err.message);
@@ -163,6 +176,7 @@ const Khosmo = ( () => {
     }
 
     listen(port, callback) {
+      const safe = this;
       this.port = port ? port : default_port;
 
       this.route(this.__route ? this.__route : def, (req, res) => {
@@ -171,7 +185,7 @@ const Khosmo = ( () => {
 
       const server = http.createServer((req, res) => {
         const handler = _setRoute(req);
-        handler.process(req, res);
+        handler.process(safe, req, res);
       });
 
       server.listen(this.port, err => {
