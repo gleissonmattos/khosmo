@@ -161,7 +161,7 @@ const Khosmo = (() => {
   */
   const _checkRequest = (req) => {
     url = Url.parse(req.url, true);
-    let handler = handlers[req.method + url.pathname];
+    let handler = handlers[`${req.method}${url.pathname}`];
 
     if (!handler)
       handler = _missing(req)
