@@ -26,19 +26,22 @@
     "README.md"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint ."
   },
   "author": {
     "name": "Gleisson Ricardo",
     "email": "contato.mattos@outlook.com"
   },
-  "repository" :{
-    "type" : "git",
-    "url" : "https://github.com/gleissonmattos/khosmo.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gleissonmattos/khosmo.git"
   },
   "license": "MIT",
   "engine": {
     "node": ">=8.9.0"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^6.8.0"
+  }
 }
