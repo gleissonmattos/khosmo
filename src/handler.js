@@ -10,9 +10,7 @@
 /**
 * Module exports
 */
-exports.create = (fn) => {
-  return new HookHandler(fn);
-}
+exports.create = fn => new HookHandler(fn);
 
 
 /**
@@ -22,14 +20,16 @@ exports.create = (fn) => {
 * @return {Object} JSON object with querys parameters
 * @private
 */
-const getQueryParams = (req) => {
-  const q = req.url.split('?'), result={};
-  if(q.length>=2){
-    q[1].split('&').forEach((item) => {
+const getQueryParams = req => {
+  const q = req.url.split("?");
+  result = {};
+  if(q.length >= 2){
+    q[1].split("&").forEach((item) => {
+      const [field, value] = item.split("=");
       try {
-        result[item.split('=')[0]] = item.split('=')[1];
+        result[field] = value;
       } catch (e) {
-        result[item.split('=')[0]] = '';
+        result[field] = "";
       }
     })
   }
@@ -46,13 +46,13 @@ const getQueryParams = (req) => {
 */
 const getObjFromUri = (data) => {
   const uri = decodeURI(data);
-  const chunks = uri.split('&');
+  const chunks = uri.split("&");
   const params = Object();
 
   for (let i=0; i < chunks.length ; i++) {
-    const chunk = chunks[i].split('=');
+    const chunk = chunks[i].split("=");
     if(chunk[0].search("\\[\\]") !== -1) {
-      if( typeof params[chunk[0]] === 'undefined' ) {
+      if( typeof params[chunk[0]] === "undefined" ) {
         params[chunk[0]] = [chunk[1]];
       } else {
         params[chunk[0]].push(chunk[1]);
@@ -85,13 +85,13 @@ class HookHandler {
   * @public
   */
   process(instance, req, res) {
-    let body = '';
+    let body = "";
 
     req.query = getQueryParams(req);
 
-    req.on('data', (chunk) => {
-      body += chunk.toString('utf8');
-    }).on('end', () => {
+    req.on("data", (chunk) => {
+      body += chunk.toString("utf8");
+    }).on("end", () => {
       try {
         req.rawBody = JSON.parse(body);
         req.body = {};
