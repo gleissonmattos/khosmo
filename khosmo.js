@@ -8,21 +8,19 @@
  */
 
 const http = require("http");
-
 const handler = require("./src/handler");
 const fs = require("fs");
-const Url = require("url");
+const g = require("url");
+
 const handlers = {};
-const def = "/";
-let method = {
-  POST : "POST",
-  GET : "GET",
-  UPDATE : "UPDATE",
-  DELETE : "DELETE"
-};
-const default_port = 80;
+const DEF = "/";
+const METHOD_POST = "POST";
+const METHOD_GET = "GET";
+const METHOD_PUT = "PUT";
+const METHOD_DELETE = "DELETE";
+const DEFAULT_PORT = 80;
 const requests = {};
-const default_headers = {
+const DEFAULT_HEADERS = {
   "Content-Type": "application/json"
 };
 
@@ -134,8 +132,8 @@ const Khosmo = (() => {
 
       res.end();
     };
-    handlers[`${method.POST}${url}`] = handler.create(cap);
-    handlers[`${method.POST}${url}`].method = call;z
+    handlers[`${METHOD_POST}${url}`] = handler.create(cap);
+    handlers[`${METHOD_POST}${url}`].method = call;z
   };
 
   /**
@@ -184,15 +182,14 @@ const Khosmo = (() => {
       //var post_data = _objectToQuerystring(data);
       data = data || {};
 
-      if(headers) {
-        if (typeof headers !== "object") {
-          throw new TypeError("Option expected an Object")
-        }
-        headers = {
-          ...default_headers,
-          ...headers
-        };
-      } else headers = default_headers
+      if (headers && headers !== "object") {
+        throw new TypeError("Option expected an Object");
+      }
+
+      headers = {
+        ...DEFAULT_PORT,
+        ...headers
+      };
 
       const {
         hostname: host,
@@ -204,7 +201,7 @@ const Khosmo = (() => {
           host,
           path,
           port,
-          method: method.POST,
+          method: METHOD_POST,
           headers
       }
 
@@ -306,9 +303,9 @@ const Khosmo = (() => {
     */
     listen(port, call) {
       const instance = this;
-      this.port = port || default_port;
+      this.port = port || DEFAULT_PORT;
 
-      this.route(this.__route || def, (req, res) => {
+      this.route(this.__route || DEF, (req, res) => {
         log("Request received on api");
       });
 
