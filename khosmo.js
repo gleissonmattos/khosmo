@@ -10,14 +10,11 @@
 const http = require("http");
 const handler = require("./src/handler");
 const fs = require("fs");
-const g = require("url");
+const Url = require("url");
 
 const handlers = {};
 const DEF = "/";
 const METHOD_POST = "POST";
-const METHOD_GET = "GET";
-const METHOD_PUT = "PUT";
-const METHOD_DELETE = "DELETE";
 const DEFAULT_PORT = 80;
 const requests = {};
 const DEFAULT_HEADERS = {
@@ -50,32 +47,13 @@ const Khosmo = (() => {
     // Prevent and check debug mode
     if(!message || !same.debug) return;
 
-    if (typeof message == "object")
+    if (typeof message === "object")
       console.info(`[${_id}] ${JSON.parse(message)}`);
-    else if(typeof message == "string")
+    else if(typeof message === "string")
       console.info(`[${_id}] ${message}`);
     else
       console.error(`[${_id}] Error`);
   };
-
-
-  /**
-  * Convert JSON Object to query string
-  *
-  * @param {Object} obj
-  * @return {String}
-  * @private
-  */
-  const _objectToQuerystring = obj => {
-    return Object.keys(obj).reduce((str, key, i) => {
-      let delimiter, val;
-      delimiter = (i === 0) ? "?" : "&";
-      key = encodeURIComponent(key);
-      val = encodeURIComponent(obj[key]);
-      return [str, delimiter, key, "=", val].join("");
-    }, "");
-  };
-
 
   /**
   * Capture message request and directs
@@ -87,9 +65,9 @@ const Khosmo = (() => {
   const _capture = req => {
     let message;
 
-    if (typeof req.rawBody == "object") {
+    if (typeof req.rawBody === "object") {
       message = req.rawBody;
-    } else if (typeof req.body == "object") {
+    } else if (typeof req.body === "object") {
       message = req.body;
     }
 
@@ -117,9 +95,9 @@ const Khosmo = (() => {
       let message;
       _capture(req);
 
-      if (typeof req.rawBody == "object") {
+      if (typeof req.rawBody === "object") {
         message = req.rawBody;
-      } else if(typeof req.body == "object") {
+      } else if(typeof req.body === "object") {
         message = req.body;
       }
 
@@ -186,10 +164,7 @@ const Khosmo = (() => {
         throw new TypeError("Option expected an Object");
       }
 
-      headers = {
-        ...DEFAULT_PORT,
-        ...headers
-      };
+      headers = Object.assign({}, DEFAULT_HEADERS, headers);
 
       const {
         hostname: host,
@@ -198,23 +173,23 @@ const Khosmo = (() => {
       } = Url.parse(lnk);
 
       const options = {
-          host,
-          path,
-          port,
-          method: METHOD_POST,
-          headers
+        host,
+        path,
+        port,
+        method: METHOD_POST,
+        headers
       }
 
       const req = http.request(options, res => {
-          let responseString = "";
+        let responseString = ""; // eslint-disable-line no-unused-vars
 
-          res.on("data", data => {
-              responseString += data;
-          });
+        res.on("data", data => {
+          responseString += data;
+        });
 
-          res.on("end", () => {
-              log("Send finish");
-          });
+        res.on("end", () => {
+          log("Send finish");
+        });
       });
 
       req.write(JSON.stringify(data));
@@ -467,19 +442,19 @@ const Khosmo = (() => {
       opt = opt || {};
 
       fs.watch(dir, function (event, filename) {
-          if (filename) {
-            if(opt.get_data) {
-              fs.readFile(filename, function(err, data) {
-                if(err) return;
+        if (filename) {
+          if(opt.get_data) {
+            fs.readFile(filename, function(err, data) {
+              if(err) return;
 
-                callback(filename, event, data.toString());
-              });
-            } else {
-              callback(filename, event);
-            }
+              callback(filename, event, data.toString());
+            });
           } else {
-              console.log("filename not provided");
+            callback(filename, event);
           }
+        } else {
+          console.log("filename not provided");
+        }
       });
     }
   }
