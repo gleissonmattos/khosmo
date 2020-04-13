@@ -71,10 +71,8 @@ const Khosmo = (() => {
       message = req.body;
     }
 
-    try {
-      same.receiver[message[same.action]](message);
-    } catch(e) {
-      throw new Error();
+    if (same.receiver[same.action]) {
+      same.receiver[same.action](message);
     }
 
     if(same.interceptor)
@@ -111,7 +109,7 @@ const Khosmo = (() => {
       res.end();
     };
     handlers[`${METHOD_POST}${url}`] = handler.create(cap);
-    handlers[`${METHOD_POST}${url}`].method = call;z
+    handlers[`${METHOD_POST}${url}`].method = call;
   };
 
   /**
@@ -290,7 +288,9 @@ const Khosmo = (() => {
       });
 
       server.listen(this.port, err => {
-        call(err)
+        if (call) {
+          call(err);
+        }
       });
     }
 
